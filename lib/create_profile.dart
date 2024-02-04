@@ -24,30 +24,32 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.purple[50],
       appBar: AppBar(
-        title: const Text('Create Profile'),
+        title: const Text('Create Profile', style: TextStyle(fontWeight: FontWeight.bold),),
       ),
       body: SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 50,horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            const Center(child: Text("SignUp", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold))),
             TextFormField(
               onChanged: (value) {
                 setState(() {
                   userName = value;
                 });
               },
-              decoration: const InputDecoration(hintText: 'Enter your name'),
+              decoration: const InputDecoration(hintText: 'Create Username'),
             ),
             const TextField(
               decoration: InputDecoration(
                 hintText: "Create password"
               ),
             ),
-            const SizedBox(height: 20),
-            const Center(child: Text("Dog's Information")),
+            const SizedBox(height: 50),
+            const Center(child: Text("Dog's Information", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),)),
             TextFormField(
               onChanged: (value) {
                 setState(() {
@@ -70,6 +72,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                     decoration: InputDecoration(
                       hintText: "Age ",
                     ),
+                    keyboardType: TextInputType.number,
                   ),
                 ),
                 SizedBox(width: 10),
@@ -98,7 +101,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                   ),
                 );
               },
-              child: const Text('Save Profile'),
+              child: Text('Save Profile'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -106,7 +109,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                 // Open gallery for photo selection
                 _pickImage(ImageSource.gallery);
               },
-              child: Text('Select Photo from Gallery'),
+              child: const Text('Select Photo from Gallery'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
