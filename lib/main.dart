@@ -1,16 +1,18 @@
-// Baran Onalan
+// Baran Onalan , Sai Varun , James Robinson
 // February 6th, 2024
-// CPSC 5350 Mobile Development Group Project
+// CPSC 5250 Mobile Development Group Project
 
 // Importing the necessary packages for the project.
 import 'package:flutter/material.dart';
-import 'create_profile.dart';
+import 'package:pawfect_match_app/login.dart';
 
 void main() {
   runApp(PawfectMatchApp());
 }
 
 class PawfectMatchApp extends StatelessWidget {
+  const PawfectMatchApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,7 +20,7 @@ class PawfectMatchApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ProfileCreationPage(),
+      home: Login(),
     );
   }
 }
