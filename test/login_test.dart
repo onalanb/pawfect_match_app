@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pawfect_match_app/login.dart';
+import 'package:pawfect_match_app/create_profile.dart';
 
 void main(){
   testWidgets("Testing Widgets in Login page", (WidgetTester tester) async {
@@ -19,6 +20,8 @@ void main(){
     expect(find.text("varuntej07"), findsOneWidget);
     expect(find.text("weakpassword"), findsOneWidget);
 
-    //await tester.tap(find.byType(ElevatedButton));
+    await tester.tap(find.text('SignUp'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ProfileCreationPage), findsOneWidget);
   });
 }
