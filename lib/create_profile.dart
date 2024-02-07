@@ -3,7 +3,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pawfect_match_app/swiping_page.dart';
 
 class ProfileCreationPage extends StatefulWidget {
-  const ProfileCreationPage({Key? key}) : super(key: key);
+  final String dbPath;
+
+  const ProfileCreationPage({required this.dbPath, Key? key}) : super(key: key);
 
   @override
   _ProfileCreationPageState createState() => _ProfileCreationPageState();
@@ -97,7 +99,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SwipingMatchingPage(),
+                    builder: (context) => SwipingMatchingPage(dbPath: widget.dbPath, userName: userName),
                   ),
                 );
               },

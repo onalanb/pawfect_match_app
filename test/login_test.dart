@@ -7,7 +7,7 @@ import 'package:pawfect_match_app/create_profile.dart';
 void main(){
   testWidgets("Testing Widgets in Login page", (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
-      home: Login(),
+      home: Login(dbPath: ''),
     ));
 
     expect(find.byType(TextField), findsNWidgets(2));

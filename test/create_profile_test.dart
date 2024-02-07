@@ -5,7 +5,7 @@ import 'package:pawfect_match_app/create_profile.dart';
 void main(){
   testWidgets("Testing SignUp page for users to be able to enter info ", (WidgetTester tester) async{
     await tester.pumpWidget(const MaterialApp(
-        home: ProfileCreationPage()
+        home: ProfileCreationPage(dbPath: '')
     ));
 
     expect(find.byType(TextField), findsNWidgets(7));
