@@ -41,8 +41,9 @@ class Login extends StatelessWidget {
               heightFactor: 1.0,
                 widthFactor: 1.0,
               child: Icon(Icons.password),
-            )
+            ),
           ),
+          obscureText: true,
         ),
         const SizedBox(height: 12),
         ElevatedButton(
@@ -67,11 +68,15 @@ class Login extends StatelessWidget {
             }, child: Text("SignUp", style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.indigo[400],
-            ))
+            )
+            )
             )
           ],
         ),
-          Text("Forgot Password", style: TextStyle(fontSize: 12, color: Colors.indigo[400]))
+          Text("Forgot Password", style: TextStyle(fontSize: 12,
+            color: Colors.indigo[400],
+            decoration: TextDecoration.underline),
+          )
       ],
       )
     );

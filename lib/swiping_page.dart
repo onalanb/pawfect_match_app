@@ -42,7 +42,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Swipe left or right to match or unmatch'),
-            SizedBox(height: 20),
+            SizedBox(height: 50),
             Dismissible(
               key: Key(profiles[currentIndex].user),
               direction: DismissDirection.horizontal,

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:pawfect_match_app/login.dart';
 
 void main() {
-  runApp(PawfectMatchApp());
+  runApp(const PawfectMatchApp());
 }
 
 class PawfectMatchApp extends StatelessWidget {
@@ -20,7 +20,7 @@ class PawfectMatchApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Login(),
+      home: const Login(),
     );
   }
 }

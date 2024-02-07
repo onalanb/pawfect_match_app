@@ -12,12 +12,13 @@ class ProfileCreationPage extends StatefulWidget {
 class _ProfileCreationPageState extends State<ProfileCreationPage> {
   String userName = '';
   String dogName = '';
+  String? selectedValue;
 
   Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await ImagePicker().getImage(source: source);
+    final pickedFile = await ImagePicker().pickImage(source: source);
 
     if (pickedFile != null) {
-      // Handle the selected image file
+      // Handles the selected image file
     }
   }
 
@@ -44,9 +45,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
               decoration: const InputDecoration(hintText: 'Create Username'),
             ),
             const TextField(
-              decoration: InputDecoration(
-                hintText: "Create password"
-              ),
+              decoration: InputDecoration(hintText: "Create password"),
+                obscureText: true,
             ),
             const SizedBox(height: 50),
             const Center(child: Text("Dog's Information", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),)),
@@ -65,22 +65,37 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                 hintText: "Enter your Dog' breed"
               ),
             ),
-            const Row(
+            Row(
               children: <Widget>[
-                Expanded(
-                  child: TextField(
+                const Expanded(child:TextField(
                     decoration: InputDecoration(
-                      hintText: "Age ",
+                      hintText: "Age",
                     ),
                     keyboardType: TextInputType.number,
                   ),
                 ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(hintText: "Sex"),
-                  ),
-                ),
+                const SizedBox(width: 20),
+                Expanded(child: SizedBox(
+                    child: Container(padding: const EdgeInsets.symmetric(),
+                        child: DropdownButton<String>(
+                      isExpanded: true,
+                      value: selectedValue,
+                      hint: const Text("Gender"),
+                      items: const [
+                        DropdownMenuItem(value: "Male", child: Text("Male")),
+                        DropdownMenuItem(value: 'Female', child: Text("Female"))
+                      ],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedValue = newValue;
+                          });
+                        }
+                      },
+                    )
+                    )
+                )
+                )
               ],
             ),
             const SizedBox(height: 10),
@@ -92,8 +107,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // Implement logic to save profile data
-                // Navigate to the next page or perform other actions
+                // Will Implement logic to save profile data later
+                // Navigating to the next page to perform other actions
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -101,7 +116,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                   ),
                 );
               },
-              child: Text('Save Profile'),
+              child: const Text('Save Profile'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -114,7 +129,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Open camera for live photo capture
+                // Opens camera for live photo capture
                 _pickImage(ImageSource.camera);
               },
               child: const Text('Take Photo with Camera'),
