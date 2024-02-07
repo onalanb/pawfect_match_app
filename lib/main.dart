@@ -16,7 +16,7 @@ void main() async {
   String dbPath = join(appDirPath, 'PawfectMatch.db');
   initializeDatabaseWithSomeUsers(dbPath);
 
-  runApp(const PawfectMatchApp(dbPath: dbPath));
+  runApp(PawfectMatchApp(dbPath: dbPath));
 }
 
 class PawfectMatchApp extends StatelessWidget {
@@ -31,7 +31,7 @@ class PawfectMatchApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Login(dbPath: dbPath),
+      home: Login(dbPath: dbPath),
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:pawfect_match_app/swiping_page.dart';
 class Login extends StatelessWidget {
   final String dbPath;
 
-  const Login({required this.dbPath, Key? key}) : super(key: key);
+  Login({required this.dbPath, Key? key}) : super(key: key);
 
   void showLoginFailedDialog(BuildContext context) {
     showDialog(
@@ -73,7 +73,6 @@ class Login extends StatelessWidget {
               child: Icon(Icons.password),
             ),
           ),
-          obscureText: true,
         ),
         const SizedBox(height: 12),
         ElevatedButton(

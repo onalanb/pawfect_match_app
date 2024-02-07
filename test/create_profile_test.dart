@@ -8,7 +8,7 @@ void main(){
         home: ProfileCreationPage(dbPath: '')
     ));
 
-    expect(find.byType(TextField), findsNWidgets(7));
+    expect(find.byType(TextField), findsNWidgets(6));
     expect(find.byType(ElevatedButton), findsNWidgets(3));
 
     const String age = '2';
@@ -18,7 +18,7 @@ void main(){
     await tester.enterText(find.byType(TextField).at(2), "Snoopy");
     await tester.enterText(find.byType(TextField).at(3), "Rottweiler");
     await tester.enterText(find.byType(TextField).at(4), age);
-    await tester.enterText(find.byType(TextField).at(6), "Pissing off people");
+    await tester.enterText(find.byType(TextField).at(5), "Pissing off people");
 
     expect(find.text("varuntej07"), findsOneWidget);
     expect(find.text("weakpassword"), findsOneWidget);
