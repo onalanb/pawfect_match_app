@@ -1,17 +1,17 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfect_match_app/profile.dart';
+import 'package:pawfect_match_app/report_profile.dart';
 import 'package:sqflite/sqflite.dart';
 
 class SwipingMatchingPage extends StatefulWidget {
   final String dbPath;
   final String userName;
 
-  SwipingMatchingPage({required this.dbPath, required this.userName, Key? key}) : super(key: key);
+  const SwipingMatchingPage({required this.dbPath, required this.userName, Key? key}) : super(key: key);
 
   @override
-  _SwipingMatchingPageState createState() => _SwipingMatchingPageState();
+  createState() => _SwipingMatchingPageState();
 }
 
 class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
@@ -64,21 +64,21 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
         future: setProfiles(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
             print(profiles[currentIndex].image);
             return Scaffold(
               appBar: AppBar(
-                title: Text('Swiping and Matching'),
+                title: const Text('Swiping and Matching'),
               ),
-              body: Center(
+              body: SingleChildScrollView(child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Swipe left or right to match or unmatch'),
-                    SizedBox(height: 50),
+                    const Text('Swipe left or right to match or unmatch'),
+                    const SizedBox(height: 50),
                     Dismissible(
                       key: Key(profiles[currentIndex].username),
                       direction: DismissDirection.horizontal,
@@ -91,9 +91,9 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                       },
                       child: Card(
                         elevation: 3,
-                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             children: [
                               // Display user and dog names
@@ -112,19 +112,30 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _swipeLeft,
-                      child: Text('Swipe Left'),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _swipeRight,
-                      child: Text('Swipe Right'),
-                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(width: 30),
+                          ElevatedButton(
+                              onPressed: _swipeLeft,
+                              child: const Icon(Icons.arrow_back_ios)
+                          ),
+                          const SizedBox(width: 30),
+                          ElevatedButton(
+                              onPressed: _swipeRight,
+                              child: const Icon(Icons.arrow_forward_ios)
+                          ),
+                          const SizedBox(width: 30),
+                          ElevatedButton(
+                              onPressed: () => reportProfile(context),
+                              child: const Icon(Icons.report)
+                          )
+                        ]
+                    )
                   ],
                 ),
               ),
+            )
             );
           }
         });

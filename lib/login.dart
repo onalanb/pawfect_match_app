@@ -6,18 +6,18 @@ import 'package:pawfect_match_app/swiping_page.dart';
 class Login extends StatelessWidget {
   final String dbPath;
 
-  Login({required this.dbPath, Key? key}) : super(key: key);
+  const Login({required this.dbPath, Key? key}) : super(key: key);
 
   void showLoginFailedDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Login Failed'),
-          content: Text('Please check your username and password and try again.'),
+          title: const Text('Login Failed'),
+          content: const Text('Please check your username and password and try again.'),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
