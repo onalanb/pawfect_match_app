@@ -22,11 +22,15 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
     Database database = await openDatabase(widget.dbPath, version: 1);
 
     // Query the database for all users except self
-    final List<Map<String, dynamic>> maps = await database.rawQuery('SELECT username, petName, picture FROM Users WHERE username != ?', [widget.userName]);
+    final List<Map<String, dynamic>> maps = await database.rawQuery('SELECT username, dogName, image FROM Users WHERE username != ?', [widget.userName]);
 
     // Convert the List<Map> to a List<User>
     return List.generate(maps.length, (i) {
-      return Profile(maps[i]['username'], maps[i]['petName'], maps[i]['picture']);
+      return Profile(
+        username: maps[i]['username'],
+        dogName: maps[i]['dogName'],
+        image: maps[i]['image']
+      );
     });
   }
 
@@ -76,7 +80,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                     Text('Swipe left or right to match or unmatch'),
                     SizedBox(height: 50),
                     Dismissible(
-                      key: Key(profiles[currentIndex].user),
+                      key: Key(profiles[currentIndex].username),
                       direction: DismissDirection.horizontal,
                       onDismissed: (direction) {
                         if (direction == DismissDirection.startToEnd) {
@@ -93,8 +97,8 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                           child: Column(
                             children: [
                               // Display user and dog names
-                              Text('User: ${profiles[currentIndex].user}'),
-                              Text('Dog: ${profiles[currentIndex].dog}'),
+                              Text('User: ${profiles[currentIndex].username}'),
+                              Text('Dog: ${profiles[currentIndex].dogName}'),
                               // Display image (or blank if null)
                               profiles[currentIndex].image != null
                                   ? Image.memory(base64Decode(profiles[currentIndex].image!))

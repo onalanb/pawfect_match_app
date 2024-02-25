@@ -1,5 +1,5 @@
 // Baran Onalan , Sai Varun , James Robinson
-// February 6th, 2024
+// February 29th, 2024
 // CPSC 5250 Mobile Development Group Project
 
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ void main() async {
   final appDir = await getApplicationDocumentsDirectory();
   var appDirPath = appDir.path;
   String dbPath = join(appDirPath, 'PawfectMatch.db');
+  print(dbPath);
   initializeDatabaseWithSomeUsers(dbPath);
 
   runApp(PawfectMatchApp(dbPath: dbPath));
@@ -43,15 +44,15 @@ void initializeDatabaseWithSomeUsers(String dbPath) async {
 
   Database db = await openDatabase(dbPath, version: 1);
   await db.execute(
-      'CREATE TABLE Users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, petName TEXT, picture TEXT)');
+      'CREATE TABLE Users (id INTEGER PRIMARY KEY, username TEXT, dogName TEXT, password TEXT, dogBreed TEXT, dogAge INTEGER, gender TEXT, about TEXT, image TEXT)');
   // Insert some records in a transaction
   print('Created table');
   await db.transaction((txn) async {
-    int id1 = await txn.rawInsert('INSERT INTO Users(id, username, password, petName, picture) VALUES(1, "baran", "password", "Marley", "$image1")');
+    int id1 = await txn.rawInsert('INSERT INTO Users(id, username, password, dogName, image) VALUES(1, "baran", "password", "Marley", "$image1")');
     print('inserted user: $id1');
-    int id2 = await txn.rawInsert('INSERT INTO Users(id, username, password, petName, picture) VALUES(2, "james", "password", "Leo", "$image2")');
+    int id2 = await txn.rawInsert('INSERT INTO Users(id, username, password, dogName, image) VALUES(2, "james", "password", "Leo", "$image2")');
     print('inserted user: $id2');
-    int id3 = await txn.rawInsert('INSERT INTO Users(id, username, password, petName) VALUES(3, "varun", "password", "Momo")');
+    int id3 = await txn.rawInsert('INSERT INTO Users(id, username, password, dogName) VALUES(3, "varun", "password", "Momo")');
     print('inserted user: $id3');
   });
 }
