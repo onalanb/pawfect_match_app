@@ -44,15 +44,15 @@ void initializeDatabaseWithSomeUsers(String dbPath) async {
 
   Database db = await openDatabase(dbPath, version: 1);
   await db.execute(
-      'CREATE TABLE Users (id INTEGER PRIMARY KEY, username TEXT, dogName TEXT, password TEXT, dogBreed TEXT, dogAge INTEGER, gender TEXT, about TEXT, image TEXT)');
+      'CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, dogName TEXT, password TEXT, dogBreed TEXT, dogAge INTEGER, gender TEXT, about TEXT, image TEXT)');
   // Insert some records in a transaction
   print('Created table');
   await db.transaction((txn) async {
-    int id1 = await txn.rawInsert('INSERT INTO Users(id, username, password, dogName, image) VALUES(1, "baran", "password", "Marley", "$image1")');
+    int id1 = await txn.rawInsert('INSERT INTO Users(username, password, dogName, image) VALUES("baran", "password", "Marley", "$image1")');
     print('inserted user: $id1');
-    int id2 = await txn.rawInsert('INSERT INTO Users(id, username, password, dogName, image) VALUES(2, "james", "password", "Leo", "$image2")');
+    int id2 = await txn.rawInsert('INSERT INTO Users(username, password, dogName, image) VALUES("james", "password", "Leo", "$image2")');
     print('inserted user: $id2');
-    int id3 = await txn.rawInsert('INSERT INTO Users(id, username, password, dogName) VALUES(3, "varun", "password", "Momo")');
+    int id3 = await txn.rawInsert('INSERT INTO Users(username, password, dogName) VALUES("varun", "password", "Momo")');
     print('inserted user: $id3');
   });
 }

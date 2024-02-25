@@ -8,7 +8,6 @@ class Profile {
   final String? about;
   final String? image;
 
-  // For Create Profile
   Profile({
     required this.username,
     required this.dogName,

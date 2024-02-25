@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pawfect_match_app/swiping_page.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ProfileCreationPage extends StatefulWidget {
   final String dbPath;
@@ -12,9 +13,19 @@ class ProfileCreationPage extends StatefulWidget {
 }
 
 class _ProfileCreationPageState extends State<ProfileCreationPage> {
-  String userName = '';
+  String username = '';
   String dogName = '';
-  String? selectedValue;
+  String password = '';
+  String breed = '';
+  String age = '';
+  String about = '';
+  String? genderValue;
+  final usernameController = TextEditingController();
+  final dogNameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final breedController = TextEditingController();
+  final ageController = TextEditingController();
+  final aboutController = TextEditingController();
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
@@ -26,6 +37,13 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
 
   @override
   Widget build(BuildContext context) {
+    usernameController.text = username;
+    dogNameController.text = dogName;
+    passwordController.text = password;
+    breedController.text = breed;
+    ageController.text = age;
+    aboutController.text = about;
+
     return Scaffold(
       backgroundColor: Colors.purple[50],
       appBar: AppBar(
@@ -39,49 +57,64 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
           children: <Widget>[
             const Center(child: Text("SignUp", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold))),
             TextFormField(
+              controller: usernameController,
               onChanged: (value) {
                 setState(() {
-                  userName = value;
+                  username = value;
                 });
               },
-              decoration: const InputDecoration(hintText: 'Create Username'),
+              decoration: const InputDecoration(hintText: 'Create username'),
             ),
-            const TextField(
-              decoration: InputDecoration(hintText: "Create password"),
-                obscureText: true,
+            TextFormField(
+              controller: passwordController,
+              onChanged: (value) {
+                setState(() {
+                  password = value;
+                });
+              },
+              decoration: const InputDecoration(hintText: "Create password"),
+              // obscureText: true,
             ),
             const SizedBox(height: 50),
             const Center(child: Text("Dog's Information", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),)),
             TextFormField(
+              controller: dogNameController,
               onChanged: (value) {
                 setState(() {
                   dogName = value;
                 });
               },
-              decoration: const InputDecoration(
-                  hintText: "Enter your Pet's name"
-              ),
+              decoration: const InputDecoration(hintText: "Enter your Pet's name"),
             ),
-            const TextField(
-              decoration: InputDecoration(
-                hintText: "Enter your Dog' breed"
-              ),
+            TextFormField(
+              controller: breedController,
+              onChanged: (value) {
+                setState(() {
+                  breed = value;
+                });
+              },
+              decoration: const InputDecoration(hintText: "Enter your Dog breed"),
             ),
             Row(
               children: <Widget>[
-                const Expanded(child:TextField(
-                    decoration: InputDecoration(
-                      hintText: "Age",
-                    ),
+                Expanded(child:
+                  TextFormField(
+                    controller: ageController,
+                    onChanged: (value) {
+                      setState(() {
+                        age = value;
+                      });
+                    },
+                    decoration: const InputDecoration(hintText: "Age"),
                     keyboardType: TextInputType.number,
                   ),
                 ),
                 const SizedBox(width: 20),
                 Expanded(child: SizedBox(
-                    child: Container(padding: const EdgeInsets.symmetric(),
-                        child: DropdownButton<String>(
+                  child: Container(padding: const EdgeInsets.symmetric(),
+                    child: DropdownButton<String>(
                       isExpanded: true,
-                      value: selectedValue,
+                      value: genderValue,
                       hint: const Text("Gender"),
                       items: const [
                         DropdownMenuItem(value: "Male", child: Text("Male")),
@@ -90,31 +123,41 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                       onChanged: (String? newValue) {
                         if (newValue != null) {
                           setState(() {
-                            selectedValue = newValue;
+                            genderValue = newValue;
                           });
                         }
                       },
                     )
-                    )
+                  )
                 )
                 )
               ],
             ),
             const SizedBox(height: 10),
-            const TextField(
-              decoration: InputDecoration(
-                  hintText: "List favorite activities that your dog like"
-              ),
+            TextFormField(
+              controller: aboutController,
+              onChanged: (value) {
+                setState(() {
+                  about = value;
+                });
+              },
+              decoration: const InputDecoration(hintText: "List favorite activities that your dog like"),
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                Database database = await openDatabase(widget.dbPath, version: 1);
+                await database.transaction((txn) async {
+                  await txn.rawInsert(
+                      'INSERT INTO Users(username, password, dogName, dogBreed, dogAge, gender, about) '
+                      'VALUES("$username", "$password", "$dogName", "$breed", "$age", "$genderValue", "$about")');
+                });
                 // Will Implement logic to save profile data later
                 // Navigating to the next page to perform other actions
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SwipingMatchingPage(dbPath: widget.dbPath, userName: userName),
+                    builder: (context) => SwipingMatchingPage(dbPath: widget.dbPath, userName: username),
                   ),
                 );
               },
