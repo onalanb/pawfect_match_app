@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pawfect_match_app/swiping_page.dart';
@@ -20,6 +21,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
   String age = '';
   String about = '';
   String? genderValue;
+  String imageBase64 = '';
+
   final usernameController = TextEditingController();
   final dogNameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -31,7 +34,18 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
     final pickedFile = await ImagePicker().pickImage(source: source);
 
     if (pickedFile != null) {
-      // Handles the selected image file
+      // Read the selected image file as bytes
+      List<int> imageBytes = await pickedFile.readAsBytes();
+
+      // Convert the bytes to base64 string
+      String base64Image = base64Encode(imageBytes);
+
+      setState(() {
+        imageBase64 = base64Image;
+      });
+
+      // Now you have the base64 encoded image string
+      print('Base64 Image: $base64Image');
     }
   }
 
@@ -149,8 +163,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                 Database database = await openDatabase(widget.dbPath, version: 1);
                 await database.transaction((txn) async {
                   await txn.rawInsert(
-                      'INSERT INTO Users(username, password, dogName, dogBreed, dogAge, gender, about) '
-                      'VALUES("$username", "$password", "$dogName", "$breed", "$age", "$genderValue", "$about")');
+                      'INSERT INTO Users(username, password, dogName, dogBreed, dogAge, gender, about, image) '
+                      'VALUES("$username", "$password", "$dogName", "$breed", "$age", "$genderValue", "$about", "$imageBase64")');
                 });
                 // Will Implement logic to save profile data later
                 // Navigating to the next page to perform other actions
