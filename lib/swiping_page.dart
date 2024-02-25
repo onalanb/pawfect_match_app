@@ -68,7 +68,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
-            print(profiles[currentIndex].image);
+            //print(profiles[currentIndex].image);
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Swiping and Matching'),
@@ -78,7 +78,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text('Swipe left or right to match or unmatch'),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 30),
                     Dismissible(
                       key: Key(profiles[currentIndex].username),
                       direction: DismissDirection.horizontal,
@@ -93,18 +93,18 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                         elevation: 3,
                         margin: const EdgeInsets.symmetric(horizontal: 20),
                         child: Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(10),
                           child: Column(
                             children: [
-                              // Display user and dog names
+                              // Displaying user' and dog' names
                               Text('User: ${profiles[currentIndex].username}'),
                               Text('Dog: ${profiles[currentIndex].dogName}'),
                               // Display image (or blank if null)
                               profiles[currentIndex].image != null
                                   ? Image.memory(base64Decode(profiles[currentIndex].image!))
                                   : Container(
-                                width: 100,
-                                height: 100,
+                                width: 150,
+                                height: 150,
                                 color: Colors.grey, // Placeholder for blank image
                               ),
                             ],
@@ -112,10 +112,11 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 15),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SizedBox(width: 30),
+                          const SizedBox(width: 70),
                           ElevatedButton(
                               onPressed: _swipeLeft,
                               child: const Icon(Icons.arrow_back_ios)

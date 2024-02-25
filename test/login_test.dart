@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pawfect_match_app/login.dart';
@@ -6,7 +5,7 @@ import 'package:pawfect_match_app/create_profile.dart';
 
 void main(){
   testWidgets("Testing Widgets in Login page", (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(const MaterialApp(
       home: Login(dbPath: ''),
     ));
 
