@@ -24,6 +24,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
   String about = '';
   String? genderValue;
   String imageBase64 = '';
+  String phoneNumber = '';
+
 
   final usernameController = TextEditingController();
   final dogNameController = TextEditingController();
@@ -31,6 +33,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
   final breedController = TextEditingController();
   final ageController = TextEditingController();
   final aboutController = TextEditingController();
+  final phoneNumberController = TextEditingController();
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
@@ -61,7 +64,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
       'dogAge': ageController.text,
       'gender': genderValue,
       'about': aboutController.text,
-      'image': imageBase64
+      'image': imageBase64,
+      'phoneNumber': phoneNumberController.text,
     });
   }
 
@@ -74,7 +78,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Form(
               key: _formKey,
               child: Column(
@@ -136,7 +140,7 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                   controller: breedController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Please enter Dog' breed";
+                      return "Please enter Dog breed";
                     }
                     return null;
                   },
@@ -146,6 +150,22 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                     });
                   },
                   decoration: const InputDecoration(hintText: "Enter your Dog breed")
+                ),
+                TextFormField(
+                    controller: phoneNumberController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter phone number";
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        phoneNumber = value;
+                      });
+                    },
+                    decoration: const InputDecoration(hintText: "Enter your phone number"),
+                    keyboardType: TextInputType.number
                 ),
                   Row(
                     children: <Widget>[

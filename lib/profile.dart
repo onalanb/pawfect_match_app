@@ -7,6 +7,7 @@ class Profile {
   final String? gender;
   final String? about;
   final String? image;
+  final String? phoneNumber;
 
   Profile({
     required this.username,
@@ -17,5 +18,6 @@ class Profile {
     this.gender,
     this.about,
     this.image,
+    this.phoneNumber,
   });
 }

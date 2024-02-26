@@ -4,6 +4,8 @@ import 'package:pawfect_match_app/profile.dart';
 import 'package:pawfect_match_app/report_profile.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'heart_counter.dart';
+
 class SwipingMatchingPage extends StatefulWidget {
   final String dbPath;
   final String userName;
@@ -38,6 +40,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
     List<Profile> readProfiles;
     if (profiles.isEmpty) {
       readProfiles = await readProfilesFromDatabase();
+      await _updateMatchCount();
       setState(() {
         profiles = readProfiles;
       });
@@ -46,16 +49,75 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
 
   int currentIndex = 0;
 
-  void _swipeLeft() async {
+  void _swipeLeft(String matchedUser) async {
+    Database database = await openDatabase(widget.dbPath, version: 1);
+    await database.transaction((txn) async {
+      await txn.delete('Matches', where: 'fromUser = ? AND toUser = ?', whereArgs: [widget.userName, matchedUser]);
+      await txn.insert('Matches', {
+        'fromUser': widget.userName,
+        'toUser': matchedUser,
+        'liked': false,
+      });
+    });
+    await _updateMatchCount();
+
     setState(() {
       currentIndex = (currentIndex + 1) % profiles.length;
     });
   }
 
-  void _swipeRight() {
+  void _swipeRight(String matchedUser) async {
+    Database database = await openDatabase(widget.dbPath, version: 1);
+    await database.transaction((txn) async {
+      await txn.delete('Matches', where: 'fromUser = ? AND toUser = ?', whereArgs: [widget.userName, matchedUser]);
+      await txn.insert('Matches', {
+        'fromUser': widget.userName,
+        'toUser': matchedUser,
+        'liked': true,
+      });
+    });
+    await _updateMatchCount();
+
     setState(() {
       currentIndex = (currentIndex + 1) % profiles.length;
     });
+  }
+
+  bool animateCount = false;
+  int matchCount = 0;
+
+  Future _updateMatchCount() async {
+    Database database = await openDatabase(widget.dbPath, version: 1);
+    printMatches(database);
+    int? count = Sqflite.firstIntValue(
+      await database.rawQuery('''
+        SELECT COUNT(*)
+        FROM Matches m1
+        JOIN Matches m2
+        ON m1.toUser = m2.fromUser
+        WHERE m1.fromUser = ? AND m2.toUser = ? AND m1.liked = true AND m2.liked = true
+        ''',
+        [widget.userName, widget.userName]));
+
+    animateCount = (matchCount != count!);
+    matchCount = count;
+  }
+
+  Future<void> printMatches(Database database) async {
+    // Fetch all rows from the Matches table
+    List<Map<String, dynamic>> matches = await database.query('Matches');
+
+    print('------------');
+    // Print the contents of each row
+    for (Map<String, dynamic> match in matches) {
+      print('Match ID: ${match['id']}');
+      print('From User: ${match['fromUser']}');
+      print('To User: ${match['toUser']}');
+      print('Liked: ${match['liked']}');
+      // Add more fields as needed
+
+      print('---');
+    }
   }
 
   @override
@@ -84,9 +146,11 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                       direction: DismissDirection.horizontal,
                       onDismissed: (direction) {
                         if (direction == DismissDirection.startToEnd) {
-                          _swipeLeft();
+                          String matchedUser = profiles[currentIndex].username;
+                          _swipeLeft(matchedUser);
                         } else {
-                          _swipeRight();
+                          String matchedUser = profiles[currentIndex].username;
+                          _swipeRight(matchedUser);
                         }
                       },
                       child: Card(
@@ -115,24 +179,30 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                     const SizedBox(height: 15),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 70),
-                          ElevatedButton(
-                              onPressed: _swipeLeft,
-                              child: const Icon(Icons.arrow_back_ios)
-                          ),
-                          const SizedBox(width: 30),
-                          ElevatedButton(
-                              onPressed: _swipeRight,
-                              child: const Icon(Icons.arrow_forward_ios)
-                          ),
-                          const SizedBox(width: 30),
-                          ElevatedButton(
-                              onPressed: () => reportProfile(context),
-                              child: const Icon(Icons.report)
-                          )
-                        ]
-                    )
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () {_swipeLeft(profiles[currentIndex].username);},
+                            child: const Icon(Icons.arrow_back_ios)
+                        ),
+                        const SizedBox(width: 30),
+                        ElevatedButton(
+                            onPressed: () {_swipeRight(profiles[currentIndex].username);},
+                            child: const Icon(Icons.arrow_forward_ios)
+                        ),
+                        const SizedBox(width: 30),
+                        ElevatedButton(
+                            onPressed: () => reportProfile(context),
+                            child: const Icon(Icons.report)
+                        )
+                      ]
+                    ),
+                    const SizedBox(height: 15),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [ HeartCounter(count: matchCount, animate: animateCount,) ],
+                    ),
                   ],
                 ),
               ),
