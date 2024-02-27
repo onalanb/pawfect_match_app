@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'matches.dart';
 
 class HeartCounter extends StatefulWidget {
   final int count;
@@ -38,19 +39,22 @@ class HeartCounterState extends State<HeartCounter>
 
     return ElevatedButton(
       onPressed: () {
-        //////////////////////////////////////////////////////////////////////////////
         // When the heart icon is pressed, it should navigate the user to matched.dart
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Matches()),
+        );
       },
       style: ElevatedButton.styleFrom(
-        minimumSize: const Size(84, 84), // Adjust the size of the button as needed
+        minimumSize: const Size(84, 84),
       ),
       child: Stack(
         children: [
           Transform.scale(
-            scale: 1.0, // Adjust the scale factor as needed
+            scale: 1.0, // Scale factor
             child: const Icon(
               Icons.favorite, // Heart icon
-              size: 60, // Adjust the size of the icon as needed
+              size: 60, // Size of icon
             ),
           ),
           Positioned(
@@ -65,7 +69,7 @@ class HeartCounterState extends State<HeartCounter>
                   color: Colors.red, // Background color of the count
                 ),
                 child: Text(
-                  '${widget.count}', // Replace '${widget.count}' with your actual count value
+                  '${widget.count}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,

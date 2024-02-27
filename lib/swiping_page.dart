@@ -24,14 +24,18 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
     Database database = await openDatabase(widget.dbPath, version: 1);
 
     // Query the database for all users except self
-    final List<Map<String, dynamic>> maps = await database.rawQuery('SELECT username, dogName, image FROM Users WHERE username != ?', [widget.userName]);
+    final List<Map<String, dynamic>> maps = await database.rawQuery('SELECT * FROM Users WHERE username != ?', [widget.userName]);
 
     // Convert the List<Map> to a List<User>
     return List.generate(maps.length, (i) {
       return Profile(
         username: maps[i]['username'],
         dogName: maps[i]['dogName'],
-        image: maps[i]['image']
+        dogBreed: maps[i]['dogBreed'],
+        dogAge: maps[i]['dogAge'],
+        gender: maps[i]['gender'],
+        about: maps[i]['about'],
+        image: maps[i]['image'],
       );
     });
   }
@@ -103,6 +107,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
     matchCount = count;
   }
 
+  // This is for debugging purposes
   Future<void> printMatches(Database database) async {
     // Fetch all rows from the Matches table
     List<Map<String, dynamic>> matches = await database.query('Matches');
@@ -156,23 +161,73 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                       child: Card(
                         elevation: 3,
                         margin: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: [
-                              // Displaying user' and dog' names
-                              Text('User: ${profiles[currentIndex].username}'),
-                              Text('Dog: ${profiles[currentIndex].dogName}'),
-                              // Display image (or blank if null)
-                              profiles[currentIndex].image != null
-                                  ? Image.memory(base64Decode(profiles[currentIndex].image!), width: 330, height: 475,)
-                                  : Container(
-                                width: 150,
-                                height: 150,
-                                color: Colors.grey, // Placeholder for blank image
+                        child: Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Displaying user and dog names
+                                  Text('User: ${profiles[currentIndex].username}'),
+                                  Text('Dog: ${profiles[currentIndex].dogName}'),
+                                  // Display image (or blank if null)
+                                  profiles[currentIndex].image != null
+                                      ? Image.memory(
+                                    base64Decode(profiles[currentIndex].image!),
+                                    width: 330,
+                                    height: 475,
+                                  )
+                                      : Container(
+                                    width: 150,
+                                    height: 150,
+                                    color: Colors.grey, // Placeholder for blank image
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: IconButton(
+                                icon: Icon(Icons.info),
+                                onPressed: () {
+                                  // Show pop-up dialog with information
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Information'),
+                                        content: RichText(
+                                          text: TextSpan(
+                                            style: const TextStyle(color: Colors.black, fontSize: 20), // Set the default text color and font size
+                                            children: [
+                                              const TextSpan(text: 'Breed: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                              TextSpan(text: '${profiles[currentIndex].dogBreed ?? ""}\n'),
+                                              const TextSpan(text: 'Age: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                              TextSpan(text: '${profiles[currentIndex].dogAge ?? ""}\n'),
+                                              const TextSpan(text: 'Gender: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                              TextSpan(text: '${profiles[currentIndex].gender ?? ""}\n'),
+                                              const TextSpan(text: 'About me: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                              TextSpan(text: '${profiles[currentIndex].about ?? ""}\n'),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('Close'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -193,7 +248,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                         const SizedBox(width: 30),
                         ElevatedButton(
                             onPressed: () => reportProfile(context),
-                            child: const Icon(Icons.report)
+                            child: const Icon(Icons.report_outlined)
                         )
                       ]
                     ),

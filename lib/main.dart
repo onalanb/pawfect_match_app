@@ -71,11 +71,20 @@ void initializeDatabaseWithSomeUsers(String dbPath) async {
   // Insert some records in a transaction
   print('Created tables');
   await db.transaction((txn) async {
-    int id1 = await txn.rawInsert('INSERT INTO Users(username, password, dogName, image) VALUES("baran", "password", "Marley", "$image1")');
+    int id1 = await txn.rawInsert('''
+    INSERT INTO Users(username, password, dogName, dogBreed, dogAge, gender, about, image)
+               VALUES("baran", "password", "Marley", "Black lab", 8, "Female", "I love going on long walks on trails and jumping around in the mud!", "$image1")
+    ''');
     print('inserted user: $id1');
-    int id2 = await txn.rawInsert('INSERT INTO Users(username, password, dogName, image) VALUES("james", "password", "Leo", "$image2")');
+    int id2 = await txn.rawInsert('''
+    INSERT INTO Users(username, password, dogName, dogBreed, dogAge, gender, about, image) 
+               VALUES("james", "password", "Leo", "Golden retriever", 5, "Male", "I like long naps in the sun and taking breaks during my walks, I get tired easily... zzzzZzz", "$image2")
+    ''');
     print('inserted user: $id2');
-    int id3 = await txn.rawInsert('INSERT INTO Users(username, password, dogName, image) VALUES("varun", "password", "Momo", "$image3")');
+    int id3 = await txn.rawInsert('''
+    INSERT INTO Users(username, password, dogName, dogBreed, dogAge, gender, about, image) 
+               VALUES("varun", "password", "Momo", "Sarabi", 12, "Male", "I always have my tennis ball in my mouth, let's play fetch! I'm old so I might be slow, so please be patient with me!", "$image3")
+    ''');
     print('inserted user: $id3');
   });
 }
