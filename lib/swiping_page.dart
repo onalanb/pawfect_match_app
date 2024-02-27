@@ -190,14 +190,14 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                               top: 10,
                               right: 10,
                               child: IconButton(
-                                icon: Icon(Icons.info),
+                                icon: const Icon(Icons.info),
                                 onPressed: () {
                                   // Show pop-up dialog with information
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text(profiles[currentIndex].dogName),
+                                        title: const Text('Information'),
                                         content: RichText(
                                           text: TextSpan(
                                             style: const TextStyle(color: Colors.black, fontSize: 20), // Set the default text color and font size
@@ -209,7 +209,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                                               const TextSpan(text: 'Gender: ', style: TextStyle(fontWeight: FontWeight.bold)),
                                               TextSpan(text: '${profiles[currentIndex].gender ?? ""}\n'),
                                               const TextSpan(text: 'About me: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                              TextSpan(text: profiles[currentIndex].about ?? ""),
+                                              TextSpan(text: '${profiles[currentIndex].about ?? ""}\n'),
                                             ],
                                           ),
                                         ),
@@ -218,7 +218,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
-                                            child: Text('Close'),
+                                            child: const Text('Close'),
                                           ),
                                         ],
                                       );
@@ -256,7 +256,8 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [ HeartCounter(count: matchCount, animate: animateCount, dbPath: widget.dbPath, userName: widget.userName) ],
+                      children: [ HeartCounter(count: matchCount, animate: animateCount,
+                          dbPath: widget.dbPath, userName: widget.userName) ],
                     ),
                   ],
                 ),

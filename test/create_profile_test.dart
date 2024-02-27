@@ -8,7 +8,7 @@ void main(){
         home: ProfileCreationPage(dbPath: '')
     ));
 
-    expect(find.byType(TextField), findsNWidgets(6));
+    expect(find.byType(TextField), findsNWidgets(7));
     expect(find.byType(ElevatedButton), findsNWidgets(3));
 
     const String age = '2';
