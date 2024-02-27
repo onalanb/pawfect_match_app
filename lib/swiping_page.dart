@@ -209,7 +209,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                                               const TextSpan(text: 'Gender: ', style: TextStyle(fontWeight: FontWeight.bold)),
                                               TextSpan(text: '${profiles[currentIndex].gender ?? ""}\n'),
                                               const TextSpan(text: 'About me: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                              TextSpan(text: '${profiles[currentIndex].about ?? ""}\n'),
+                                              TextSpan(text: profiles[currentIndex].about ?? ""),
                                             ],
                                           ),
                                         ),
