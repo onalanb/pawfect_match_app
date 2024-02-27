@@ -165,7 +165,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                               Text('Dog: ${profiles[currentIndex].dogName}'),
                               // Display image (or blank if null)
                               profiles[currentIndex].image != null
-                                  ? Image.memory(base64Decode(profiles[currentIndex].image!))
+                                  ? Image.memory(base64Decode(profiles[currentIndex].image!), width: 330, height: 475,)
                                   : Container(
                                 width: 150,
                                 height: 150,
