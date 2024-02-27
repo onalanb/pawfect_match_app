@@ -19,12 +19,21 @@ Instructions / notes:
   Once Create Profile is connected to the database, we will remove this hardcoded database
   initialization.
 
-For the next milestone:
+For milestone 2:
 - We will add all required columns to our database schema.
 - We will connect all the remaining functionality to the database. 
   This includes saved profiles, left and right swipes, pictures/images, and more data that will
   come with new widgets.
 - We will add new widgets for:
-    - Locations (latitude and longitude) for the users/dogs of account profiles
-    - Distance range for match filtering
-    - Reporting inappropriate profiles
+    - Heart widget that will appear as a matching icon on the swiping page and navigate to a Matches widget.
+      Heart widget has a counter that displays the number of matches for the logged in person.
+      When the counter changes (increment or decrement) there will be an animation on the icon.
+      A match is defined by mutual liking of two users.
+    - Reporting inappropriate profiles, this widget allows users to report profiles and provide a reason. 
+      (this would normally send an email to some administrative role for review but we wont do this.)
+    - Matches widget that will navigate the user to a new matches page. Here, they will be able to view
+      all details about the person they have matched with just as they would normally in the swiping page.
+      However, they will also have access to the user's phone number so that they can make contact with them.
+
+For milestone 3:
+  - TBD 
