@@ -4,8 +4,10 @@ import 'matches.dart';
 class HeartCounter extends StatefulWidget {
   final int count;
   final bool animate;
+  final String dbPath;
+  final String userName;
 
-  const HeartCounter({Key? key, required this.count, required this.animate}) : super(key: key);
+  const HeartCounter({Key? key, required this.count, required this.animate, required this.dbPath, required this.userName}) : super(key: key);
 
   @override
   HeartCounterState createState() => HeartCounterState();
@@ -42,7 +44,7 @@ class HeartCounterState extends State<HeartCounter>
         // When the heart icon is pressed, it should navigate the user to matched.dart
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Matches()),
+          MaterialPageRoute(builder: (context) => Matches(dbPath: widget.dbPath, userName: widget.userName)),
         );
       },
       style: ElevatedButton.styleFrom(

@@ -197,7 +197,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text('Information'),
+                                        title: Text(profiles[currentIndex].dogName),
                                         content: RichText(
                                           text: TextSpan(
                                             style: const TextStyle(color: Colors.black, fontSize: 20), // Set the default text color and font size
@@ -209,7 +209,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                                               const TextSpan(text: 'Gender: ', style: TextStyle(fontWeight: FontWeight.bold)),
                                               TextSpan(text: '${profiles[currentIndex].gender ?? ""}\n'),
                                               const TextSpan(text: 'About me: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                              TextSpan(text: '${profiles[currentIndex].about ?? ""}\n'),
+                                              TextSpan(text: profiles[currentIndex].about ?? ""),
                                             ],
                                           ),
                                         ),
@@ -256,7 +256,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [ HeartCounter(count: matchCount, animate: animateCount,) ],
+                      children: [ HeartCounter(count: matchCount, animate: animateCount, dbPath: widget.dbPath, userName: widget.userName) ],
                     ),
                   ],
                 ),
