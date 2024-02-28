@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:pawfect_match_app/profile.dart';
+import 'package:pawfect_match_app/Data/profile.dart';
 import 'package:sqflite/sqflite.dart';
 
 class Matches extends StatefulWidget {

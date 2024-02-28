@@ -95,9 +95,7 @@ class Login extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.purple[600]),
-            child: const Text(
-              "Login",
-              style: TextStyle(fontSize: 20,
+            child: const Text("Login", style: TextStyle(fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.white,
               ),

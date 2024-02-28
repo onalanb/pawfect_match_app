@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:pawfect_match_app/profile.dart';
+import 'package:pawfect_match_app/Data/profile.dart';
 import 'package:pawfect_match_app/report_profile.dart';
 import 'package:sqflite/sqflite.dart';
-
 import 'heart_counter.dart';
 
 class SwipingMatchingPage extends StatefulWidget {
