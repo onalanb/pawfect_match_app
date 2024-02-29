@@ -27,6 +27,7 @@ void main(){
     await tester.enterText(find.byType(TextFormField).at(5), age);
     await tester.enterText(find.byType(TextFormField).at(6), "Pissing off people");
 
+
     expect(find.text("varuntej07"), findsOneWidget);
     expect(find.text("weakpassword"), findsOneWidget);
     expect(find.text("Snoopy"), findsOneWidget);
