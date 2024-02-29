@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pawfect_match_app/swiping_page.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ProfileCreationPage extends StatefulWidget {
@@ -120,11 +118,23 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                 ),
                 TextFormField(
                   controller: ageController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter Dog age";
+                    }
+                    return null;
+                  },
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(hintText: "Dog's Age"),
                 ),
                 DropdownButtonFormField<String>(
                   value: genderValue,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter Dog gender";
+                    }
+                    return null;
+                  },
                   hint: const Text("Select Gender"),
                   items: <String>['Male', 'Female'].map((String value) {
                     return DropdownMenuItem<String>(
@@ -140,18 +150,37 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                 ),
                 TextFormField(
                   controller: aboutController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please share something about your dog";
+                    }
+                    return null;
+                  },
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                   decoration: const InputDecoration(hintText: "About the dog"),
                 ),
                 TextFormField(
                   controller: phoneNumberController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter phone number";
+                    }
+                    return null;
+                  },
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(hintText: "Phone Number"),
                 ),
                 ElevatedButton(
                   onPressed: () => _pickImage(ImageSource.gallery),
                   child: const Text('Select Image'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Opens camera for live photo capture
+                    _pickImage(ImageSource.camera);
+                  },
+                  child: const Text('Take Photo with Camera'),
                 ),
                 ElevatedButton(
                   onPressed: () async {
