@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pawfect_match_app/Data/profile.dart';
 import 'package:pawfect_match_app/report_profile.dart';
@@ -22,10 +22,8 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
     print('Reading profiles from database');
     Database database = await openDatabase(widget.dbPath, version: 1);
 
-    // Query the database for all users except self
     final List<Map<String, dynamic>> maps = await database.rawQuery('SELECT * FROM Users WHERE username != ?', [widget.userName]);
 
-    // Convert the List<Map> to a List<User>
     return List.generate(maps.length, (i) {
       return Profile(
         username: maps[i]['username'],
@@ -106,19 +104,15 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
     matchCount = count;
   }
 
-  // This is for debugging purposes
   Future<void> printMatches(Database database) async {
-    // Fetch all rows from the Matches table
     List<Map<String, dynamic>> matches = await database.query('Matches');
 
     print('------------');
-    // Print the contents of each row
     for (Map<String, dynamic> match in matches) {
       print('Match ID: ${match['id']}');
       print('From User: ${match['fromUser']}');
       print('To User: ${match['toUser']}');
       print('Liked: ${match['liked']}');
-      // Add more fields as needed
 
       print('---');
     }
@@ -134,7 +128,6 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
-            //print(profiles[currentIndex].image);
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Swiping and Matching'),
@@ -167,20 +160,24 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Displaying user and dog names
                                   Text('User: ${profiles[currentIndex].username}'),
                                   Text('Dog: ${profiles[currentIndex].dogName}'),
-                                  // Display image (or blank if null)
                                   profiles[currentIndex].image != null
+                                      ? (profiles[currentIndex].image!.startsWith('lib/Assets/')
                                       ? Image.asset(
                                     profiles[currentIndex].image!,
                                     width: 330,
                                     height: 475,
                                   )
+                                      : Image.file(
+                                    File(profiles[currentIndex].image!),
+                                    width: 330,
+                                    height: 475,
+                                  ))
                                       : Container(
                                     width: 150,
                                     height: 150,
-                                    color: Colors.grey, // Placeholder for blank image
+                                    color: Colors.grey,
                                   ),
                                 ],
                               ),
@@ -191,7 +188,6 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                               child: IconButton(
                                 icon: const Icon(Icons.info),
                                 onPressed: () {
-                                  // Show pop-up dialog with information
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
