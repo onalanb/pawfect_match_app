@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+import 'mock_data.dart';
 
 class DatabaseHelper {
   static const _databaseName = "PawfectMatch.db";
@@ -17,9 +19,18 @@ class DatabaseHelper {
   }
 
   _initializeDatabase() async {
-    var appDir = await getApplicationDocumentsDirectory();
-    var dbPath = join(appDir.path, _databaseName);
+    Directory appDir = await getApplicationDocumentsDirectory();
+    String dbPath = join(appDir.path, _databaseName);
+    bool dbExists = await File(dbPath).exists();
+    if (dbExists) {
+      print("Opening existing database");
+    } else {
+      print("Creating new database");
+    }
     var db = await openDatabase(dbPath, version: _databaseVersion, onCreate: _onCreate);
+    if (!dbExists) {
+      await insertMockDataIfNeeded();
+    }
     return db;
   }
 
@@ -48,5 +59,17 @@ class DatabaseHelper {
       )
     ''');
     print('Database and tables created');
+  }
+
+  Future<void> insertMockDataIfNeeded() async {
+    final Database db = await database;
+    int? count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM Users'));
+    if (count == 0) {
+      var mockData = MockProfileDao().mockProfiles;
+      for (var profile in mockData) {
+        await db.insert('Users', profile.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      print('Mock data inserted');
+    }
   }
 }

@@ -10,7 +10,7 @@ class ProfileCreationPage extends StatefulWidget {
   const ProfileCreationPage({required this.dbPath, Key? key}) : super(key: key);
 
   @override
-  createState() => _ProfileCreationPageState();
+  _ProfileCreationPageState createState() => _ProfileCreationPageState();
 }
 
 class _ProfileCreationPageState extends State<ProfileCreationPage> {
@@ -23,9 +23,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
   String age = '';
   String about = '';
   String? genderValue;
-  String imageBase64 = '';
+  String imagePath = ''; // Adjusted for file path usage
   String phoneNumber = '';
-
 
   final usernameController = TextEditingController();
   final dogNameController = TextEditingController();
@@ -39,32 +38,23 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
     final pickedFile = await ImagePicker().pickImage(source: source);
 
     if (pickedFile != null) {
-      // Read the selected image file as bytes
-      List<int> imageBytes = await pickedFile.readAsBytes();
-
-      // Convert the bytes to base64 string
-      String base64Image = base64Encode(imageBytes);
-
       setState(() {
-        imageBase64 = base64Image;
+        imagePath = pickedFile.path; // Store the file path directly
       });
-
-      // Now you have the base64 encoded image string
-      print('Base64 Image: $base64Image');
     }
   }
 
   Future<void> saveProfileToDatabase() async {
-    Database database = await openDatabase(widget.dbPath, version: 1);
+    final Database database = await openDatabase(widget.dbPath, version: 1);
     await database.insert('Users', {
       'username': usernameController.text,
       'password': passwordController.text,
       'dogName': dogNameController.text,
       'dogBreed': breedController.text,
-      'dogAge': ageController.text,
+      'dogAge': int.tryParse(ageController.text) ?? 0, // Ensure dogAge is stored as an integer
       'gender': genderValue,
       'about': aboutController.text,
-      'image': imageBase64,
+      'image': imagePath, // Saving the image file path
       'phoneNumber': phoneNumberController.text,
     });
   }
@@ -72,54 +62,41 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.purple[50],
-        appBar: AppBar(
-          title: const Text('Create Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Center(
-                      child: Text("SignUp", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold))
-                  ),
-                  TextFormField(
+      backgroundColor: Colors.purple[50],
+      appBar: AppBar(
+        title: const Text('Create Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Center(
+                    child: Text("SignUp", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold))
+                ),
+                TextFormField(
                     controller: usernameController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a username';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                      setState(() {
-                        username = value;
-                      });
-                      },
-                      decoration: const InputDecoration(hintText: 'Create username')
-                  ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a username';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(hintText: 'Create username')
+                ),
                 TextFormField(
                   controller: passwordController,
+                  obscureText: true, // Enhance password field security
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please create a password';
                     }
                     return null;
                   },
-                  onChanged: (value) {
-                    setState(() {
-                      password = value;
-                    });
-                  },
                   decoration: const InputDecoration(hintText: "Create password"),
-                ),
-                const SizedBox(height: 50),
-                const Center(
-                    child: Text("Dog's Information", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15))
                 ),
                 TextFormField(
                   controller: dogNameController,
@@ -129,142 +106,67 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                     }
                     return null;
                   },
-                  onChanged: (value) {
-                    setState(() {
-                      dogName = value;
-                    });
-                  },
                   decoration: const InputDecoration(hintText: "Enter your Pet's name"),
                 ),
                 TextFormField(
-                  controller: breedController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please enter Dog breed";
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      breed = value;
-                    });
-                  },
-                  decoration: const InputDecoration(hintText: "Enter your Dog breed")
-                ),
-                TextFormField(
-                    controller: phoneNumberController,
+                    controller: breedController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Please enter phone number";
+                        return "Please enter Dog breed";
                       }
                       return null;
                     },
-                    onChanged: (value) {
-                      setState(() {
-                        phoneNumber = value;
-                      });
-                    },
-                    decoration: const InputDecoration(hintText: "Enter your phone number"),
-                    keyboardType: TextInputType.number
+                    decoration: const InputDecoration(hintText: "Enter your Dog breed")
                 ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                          child: TextFormField(
-                              controller: ageController,
-                              onChanged: (value) {
-                                setState(() {
-                                  age = value;
-                                });
-                                },
-                              decoration: const InputDecoration(hintText: "Age"),
-                              keyboardType: TextInputType.number
-                          )
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(child: SizedBox(
-                        child: Container(padding: const EdgeInsets.symmetric(),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: genderValue,
-                              hint: const Text("Gender"),
-                              items: const [
-                                DropdownMenuItem(
-                                    value: "Male", child: Text("Male")),
-                                DropdownMenuItem(
-                                    value: 'Female', child: Text("Female"))
-                              ],
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    genderValue = newValue;
-                                  });
-                                }
-                              },
-                            )
-                        )
-                      )
-                      )
-                    ],
-                  ),
-                const SizedBox(height: 10),
                 TextFormField(
-                  controller: aboutController,
-                  validator: (value){
-                    if(value==null || value.isEmpty){
-                      return "Please enter at least one activity";
-                    } else{
-                      return null;
-                    }
-                  },
-                  onChanged: (value) {
+                  controller: ageController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(hintText: "Dog's Age"),
+                ),
+                DropdownButtonFormField<String>(
+                  value: genderValue,
+                  hint: const Text("Select Gender"),
+                  items: <String>['Male', 'Female'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
                     setState(() {
-                      about = value;
+                      genderValue = newValue;
                     });
                   },
-                  decoration: const InputDecoration(hintText: "List favorite activities that your dog like"),
                 ),
-                const SizedBox(height: 30),
-                  Row(
-                      children: [
-                        const SizedBox(width: 30),
-                        ElevatedButton(
-                            onPressed: () {
-                              // Open gallery for photo selection
-                              _pickImage(ImageSource.gallery);
-                            },
-                            child: const Text('Upload Photos')
-                        ),
-                        const SizedBox(width: 20),
-                        ElevatedButton(
-                            onPressed: () {
-                              // Opens camera for live photo capture
-                              _pickImage(ImageSource.camera);
-                            },
-                            child: const Text('Take Photo')
-                        ),
-                      ]
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(onPressed: () async {
-                    if (_formKey.currentState!.validate()){
-                       await saveProfileToDatabase();
-                      // Will Implement logic to save profile data later
-                      // Navigating to the next page to perform other actions
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => SwipingMatchingPage(
-                            dbPath: widget.dbPath, userName: username)
-                      )
-                      );
+                TextFormField(
+                  controller: aboutController,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  decoration: const InputDecoration(hintText: "About the dog"),
+                ),
+                TextFormField(
+                  controller: phoneNumberController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(hintText: "Phone Number"),
+                ),
+                ElevatedButton(
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  child: const Text('Select Image'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      await saveProfileToDatabase();
+                      Navigator.of(context).pop(); // Assuming you want to pop back after saving
                     }
                   },
-                  child: const Center( child: Text('Save Profile')),
+                  child: const Text('Save Profile'),
                 ),
               ],
             ),
           ),
-          )
-        )
+        ),
+      ),
     );
   }
 }

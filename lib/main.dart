@@ -6,13 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:pawfect_match_app/login.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
+import 'Data/database_setup.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appDir = await getApplicationDocumentsDirectory();
   var appDirPath = appDir.path;
   String dbPath = join(appDirPath, 'PawfectMatch.db');
-  print(dbPath);
+  DatabaseHelper databaseHelper = DatabaseHelper.instance;
+  await databaseHelper.database;
+  await databaseHelper.insertMockDataIfNeeded();
   runApp(PawfectMatchApp(dbPath: dbPath));
 }
 
