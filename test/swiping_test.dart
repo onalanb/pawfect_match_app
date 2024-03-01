@@ -5,7 +5,7 @@ import 'package:pawfect_match_app/user_repo.dart';
 import 'package:pawfect_match_app/swiping_page.dart';
 
 void main() async {
-    group('Login Functionality Tests', ()
+    group('Swiping Page Functionality Tests', ()
     {
       late InMemoryUserRepository userRepository;
 
