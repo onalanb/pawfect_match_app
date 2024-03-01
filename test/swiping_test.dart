@@ -1,66 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:pawfect_match_app/Data/profile.dart';
+import 'package:pawfect_match_app/user_repo.dart';
 import 'package:pawfect_match_app/swiping_page.dart';
 
-void main() async{
-  //Initializing the ffi implementation
-    sqfliteFfiInit();
+void main() async {
+    group('Login Functionality Tests', ()
+    {
+      late InMemoryUserRepository userRepository;
 
-    //global database factory
-    var databaseFactory = databaseFactoryFfi;
-
-    var db = await databaseFactory.openDatabase(inMemoryDatabasePath, options: OpenDatabaseOptions(
-    version: 1,
-    onCreate: (db, version) async {
-      await db.execute('''CREATE TABLE PROFILES(
-        username TEXT PRIMARY KEY UNIQUE,
-        dogName TEXT,
-        password TEXT,
-        dogBreed TEXT,
-        dogAge INTEGER,
-        gender TEXT,
-        about TEXT,
-        image TEXT)
-        ''');
-      await db.insert('PROFILES', {
-        'username': 'varun',
-        'dogName': 'snoopy',
-        'dogBreed': 'pit bull',
-        'dogAge': 3,
-        'gender': 'Male',
-        'about': 'Loves long walks',
-        'image': 'base64EncodedImageString',
+      setUp(() {
+        userRepository = InMemoryUserRepository();
+        userRepository.addUser(Profile(
+          username: 'varun',
+          dogName: 'snoopy',
+          password: 'password',
+          dogBreed: 'Pit Bull',
+          dogAge: 2,
+          gender: 'Male',
+          about: 'I always have my tennis ball in my mouth!',
+          phoneNumber: '(123)123-1234',
+          image: 'lib/Assets/photos/195827115-2024-01-04.jpg',
+        ));
+        userRepository.addUser(Profile(
+          username: 'baran',
+          dogName: 'Marley',
+          password: 'password',
+          dogBreed: 'Retriever',
+          dogAge: 8,
+          gender: 'Female',
+          about: 'I love long hikes!',
+          phoneNumber: '(123)123-1234',
+          image: 'lib/Assets/photos/195723497-2024-01-01.jpg',
+        ));
       });
-    }
-    ));
 
-    testWidgets("Testing swiping features", (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(title: const Text('Swiping and Matching')),
-            body: const SwipingMatchingPage(dbPath: inMemoryDatabasePath, userName: 'varun')
-        )
-      ));
-      await tester.pumpAndSettle();
+      testWidgets("Testing swiping features", (WidgetTester tester) async {
+        await tester.pumpWidget(MaterialApp(
+            home: Scaffold(
+                //appBar: AppBar(title: const Text('Swiping Test')),
+                body: SwipingMatchingPage(
+                    userRepository: userRepository, userName: 'varun')
+            )
+        ));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(Scaffold), findsOneWidget);
+        expect(find.byType(Scaffold), findsNWidgets(2));
+        expect(find.byType(AppBar), findsOneWidget);
+        expect(find.text('Swiping and Matching'), findsOneWidget);
+        expect(find.text('Swipe left or right to match or unmatch'), findsOneWidget);
+        await tester.pumpAndSettle();
 
-      expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Swiping and Matching'), findsOneWidget);
-      await tester.pumpAndSettle();
+        final dismissibleFinder = find.byType(Dismissible);
+        expect(dismissibleFinder, findsOneWidget);
 
-      // final dismissibleFinder = find.byType(Dismissible);
-      // expect(dismissibleFinder, findsOneWidget);
-      // expect(find.text('varun'), findsOneWidget);
-      // expect(find.text('snoopy'), findsOneWidget);
-      // expect(find.text('pit bull'), findsOneWidget);
+        // Retrieve the Dismissible widget instance
+        final Dismissible dismissibleWidget = tester.widget(dismissibleFinder);
 
-      // expect(find.byType(ElevatedButton), findsNWidgets(1));
+        // Access the child widget of the Dismissible widget
+        Widget? childWidget = dismissibleWidget.child;
+        childWidget = (childWidget as Card).child;
+        childWidget = (childWidget as Stack).children[0];
+        childWidget = (childWidget as Padding).child;
+        Column column = childWidget as Column;
+        expect((column.children[0] as Text).data, "User: baran");
+        expect((column.children[1] as Text).data, "Dog: Marley");
 
-      //await tester.tap(find.widgetWithIcon(ElevatedButton, Icons.report_outlined));
-      //await tester.pump(const Duration(seconds: 1));
-      // expect(find.byType(AlertDialog), findsOneWidget);
+        final rowFinder = find.byType(Row);
+        expect(rowFinder, findsNWidgets(2));
+
+        // Find the ElevatedButtons inside row1
+        final elevatedButtonFinder = find.descendant(
+          of: find.byWidgetPredicate((widget) => widget is Row ),
+          matching: find.byType(ElevatedButton),
+        );
+
+        expect(elevatedButtonFinder, findsNWidgets(4));
+      });
+
     });
-    await db.close();
   }
