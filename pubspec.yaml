@@ -17,6 +17,7 @@ dependencies:
   go_router:
   path: any
   http: ^1.2.0
+  mockito:
 
 dev_dependencies:
   flutter_test:
@@ -25,8 +26,8 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^2.0.0
   sqflite_common_ffi:
-  mockito: ^5.4.4
   build_runner: ^2.4.8
+  provider:
 
 flutter:
   uses-material-design: true
