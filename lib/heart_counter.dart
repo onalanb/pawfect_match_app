@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:pawfect_match_app/user_repo.dart';
 import 'matches.dart';
 
 class HeartCounter extends StatefulWidget {
   final int count;
   final bool animate;
-  final String dbPath;
+  final UserRepository userRepository;
   final String userName;
 
-  const HeartCounter({Key? key, required this.count, required this.animate, required this.dbPath, required this.userName}) : super(key: key);
+  const HeartCounter({
+    Key? key,
+    required this.count,
+    required this.animate,
+    required this.userRepository,
+    required this.userName,
+  }) : super(key: key);
 
   @override
   HeartCounterState createState() => HeartCounterState();
 }
 
-class HeartCounterState extends State<HeartCounter>
-    with SingleTickerProviderStateMixin {
+class HeartCounterState extends State<HeartCounter> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
 
@@ -41,12 +47,10 @@ class HeartCounterState extends State<HeartCounter>
 
     return ElevatedButton(
       onPressed: () {
-        // When the heart icon is pressed, it should navigate the user to matched.dart
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Matches(dbPath: widget.dbPath, userName: widget.userName)),
-        );
-      },
+        // When the heart icon is pressed, it navigates the user to matched.dart
+        Navigator.push(context, MaterialPageRoute(builder:
+            (context) => Matches(userRepository: widget.userRepository, userName: widget.userName)));
+        },
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(84, 84),
       ),
@@ -65,10 +69,10 @@ class HeartCounterState extends State<HeartCounter>
             child: ScaleTransition(
               scale: _animation,
               child: Container(
-                padding: EdgeInsets.all(4),
+                padding: const EdgeInsets.all(4),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.red, // Background color of the count
+                  color: Colors.red,
                 ),
                 child: Text(
                   '${widget.count}',
@@ -83,11 +87,5 @@ class HeartCounterState extends State<HeartCounter>
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 }

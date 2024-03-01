@@ -6,7 +6,7 @@ import 'mock_data.dart';
 
 class DatabaseHelper {
   static const _databaseName = "PawfectMatch.db";
-  static const _databaseVersion = 1;
+  static const _version = 2;
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -21,55 +21,44 @@ class DatabaseHelper {
   _initializeDatabase() async {
     Directory appDir = await getApplicationDocumentsDirectory();
     String dbPath = join(appDir.path, _databaseName);
-    bool dbExists = await File(dbPath).exists();
-    if (dbExists) {
-      print("Opening existing database");
-    } else {
-      print("Creating new database");
-    }
-    var db = await openDatabase(dbPath, version: _databaseVersion, onCreate: _onCreate);
-    if (!dbExists) {
-      await insertMockDataIfNeeded();
-    }
-    return db;
-  }
-
-  Future _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE Users (
-        username TEXT PRIMARY KEY UNIQUE, 
-        dogName TEXT, 
-        password TEXT, 
-        dogBreed TEXT, 
-        dogAge INTEGER, 
-        gender TEXT, 
-        about TEXT, 
-        image TEXT, 
-        phoneNumber TEXT
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE Matches (
-        fromUser TEXT,
-        toUser TEXT,
-        liked BOOLEAN,
-        FOREIGN KEY (fromUser) REFERENCES Users(username),
-        FOREIGN KEY (toUser) REFERENCES Users(username),
-        UNIQUE(fromUser, toUser, liked)
-      )
-    ''');
-    print('Database and tables created');
+    await deleteDatabase(dbPath);
+    return await openDatabase(dbPath, version: _version,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE Profiles(
+            username TEXT PRIMARY KEY UNIQUE,
+            dogName TEXT,
+            password TEXT,
+            dogBreed TEXT,
+            dogAge INTEGER,
+            gender TEXT,
+            about TEXT,
+            image TEXT,
+            phoneNumber TEXT
+          )
+        ''');
+            await db.execute('''
+          CREATE TABLE Matches (
+            fromUser TEXT,
+            toUser TEXT,
+            liked INTEGER,
+            FOREIGN KEY (fromUser) REFERENCES Profiles(username),
+            FOREIGN KEY (toUser) REFERENCES Profiles(username),
+            UNIQUE(fromUser, toUser, liked)
+          )
+        ''');
+        print("Tables created Successfully!");
+      },
+    );
   }
 
   Future<void> insertMockDataIfNeeded() async {
     final Database db = await database;
-    int? count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM Users'));
-    if (count == 0) {
       var mockData = MockProfileDao().mockProfiles;
+      print("Entered inserting");
       for (var profile in mockData) {
-        await db.insert('Users', profile.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-      }
-      print('Mock data inserted');
+        await db.insert('Profiles', profile.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+      print('Mock data inserted into Profiles table');
     }
   }
 }

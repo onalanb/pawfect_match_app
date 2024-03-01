@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pawfect_match_app/Data/profile.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pawfect_match_app/user_repo.dart';
 
 class Matches extends StatefulWidget {
-  final String dbPath;
+  final UserRepository userRepository;
   final String userName;
 
-  const Matches({required this.dbPath, required this.userName, Key? key}) : super(key: key);
+  const Matches({required this.userRepository, required this.userName, Key? key,}) : super(key: key);
 
   @override
   createState() => MatchesPageState();
@@ -15,125 +15,64 @@ class Matches extends StatefulWidget {
 
 class MatchesPageState extends State<Matches> {
   List<Profile> profiles = [];
-
-  Future<List<Profile>> readProfilesFromDatabase() async {
-    print('Reading profiles from database');
-    Database database = await openDatabase(widget.dbPath, version: 1);
-
-    final List<Map<String, dynamic>> maps = await database.rawQuery('''
-        SELECT 
-        *
-        FROM Matches m1
-        JOIN Matches m2
-        ON m1.toUser = m2.fromUser
-        JOIN Users u
-        ON m1.toUser = u.username
-        WHERE m1.fromUser = ? AND m2.toUser = ? AND m1.liked = true AND m2.liked = true
-        ''',
-        [widget.userName, widget.userName]);
-
-    return List.generate(maps.length, (i) {
-      return Profile(
-        username: maps[i]['username'],
-        dogName: maps[i]['dogName'],
-        dogBreed: maps[i]['dogBreed'],
-        dogAge: maps[i]['dogAge'],
-        gender: maps[i]['gender'],
-        about: maps[i]['about'],
-        phoneNumber: maps[i]['phoneNumber'],
-        image: maps[i]['image'],
-      );
-    });
-  }
-
-  Future setProfiles() async {
-    List<Profile> readProfiles;
-    if (profiles.isEmpty) {
-      readProfiles = await readProfilesFromDatabase();
-      await _updateMatchCount();
-      setState(() {
-        profiles = readProfiles;
-      });
-    }
-  }
-
   int currentIndex = 0;
+  bool animateCount = false;
+  int matchCount = 0;
+  late Future<void> matchesPage;
 
-  void _previous() async {
+  @override
+  void initState() {
+    super.initState();
+    matchesPage = _setProfiles();
+  }
+
+  Future<void> _setProfiles() async {
+    profiles = await widget.userRepository.getMatchedProfiles(widget.userName);
+    _updateMatchCount();
+  }
+
+  void _previous() {
     setState(() {
-      currentIndex = (currentIndex - 1) % profiles.length;
-      if (currentIndex < 0) {
-        currentIndex = profiles.length - 1;
-      }
+      currentIndex = currentIndex > 0 ? currentIndex - 1 : profiles.length - 1;
     });
   }
 
-  void _next() async {
+  void _next() {
     setState(() {
       currentIndex = (currentIndex + 1) % profiles.length;
     });
   }
 
-  bool animateCount = false;
-  int matchCount = 0;
-
-  Future _updateMatchCount() async {
-    Database database = await openDatabase(widget.dbPath, version: 1);
-    printMatches(database);
-    int? count = Sqflite.firstIntValue(
-        await database.rawQuery('''
-        SELECT COUNT(*)
-        FROM Matches m1
-        JOIN Matches m2
-        ON m1.toUser = m2.fromUser
-        WHERE m1.fromUser = ? AND m2.toUser = ? AND m1.liked = true AND m2.liked = true
-        ''',
-            [widget.userName, widget.userName]));
-
-    animateCount = (matchCount != count!);
-    matchCount = count;
-  }
-
-  Future<void> printMatches(Database database) async {
-    List<Map<String, dynamic>> matches = await database.query('Matches');
-
-    print('------------');
-    for (Map<String, dynamic> match in matches) {
-      print('Match ID: ${match['id']}');
-      print('From User: ${match['fromUser']}');
-      print('To User: ${match['toUser']}');
-      print('Liked: ${match['liked']}');
-      print('Phone Number: ${match['phoneNumber']}');
-
-      print('---');
-    }
+  Future<void> _updateMatchCount() async {
+    int newCount = await widget.userRepository.getMatchCount(widget.userName);
+    setState(() {
+      animateCount = (matchCount != newCount);
+      matchCount = newCount;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: setProfiles(),
+        future: matchesPage,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
+          } else if (profiles.isEmpty) { // Checks if the Matchedprofiles list is empty
+            return Scaffold(
+              appBar: AppBar(title: const Text('Matches')),
+              body: const Center(child: Text("Oops! No matches yet")),
+            );
           } else {
             return Scaffold(
-                appBar: AppBar(
-                  title: Text('$matchCount Matches'),
-                ),
+                appBar: AppBar(title: Text('$matchCount Matches')),
                 body: SingleChildScrollView(child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Click info icon for my phone number!',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-
+                      const Text('Click info icon for my Number!', style: TextStyle(fontSize: 18)),
                       const SizedBox(height: 30),
                       Dismissible(
                         key: Key(profiles[currentIndex].username),
@@ -181,7 +120,7 @@ class MatchesPageState extends State<Matches> {
                                 top: 10,
                                 right: 10,
                                 child: IconButton(
-                                  icon: Icon(Icons.info),
+                                  icon: const Icon(Icons.info),
                                   onPressed: () {
                                     showDialog(
                                       context: context,
@@ -190,7 +129,7 @@ class MatchesPageState extends State<Matches> {
                                           title: Text(profiles[currentIndex].dogName),
                                           content: RichText(
                                             text: TextSpan(
-                                              style: const TextStyle(color: Colors.black, fontSize: 20), // Set the default text color and font size
+                                              style: const TextStyle(color: Colors.black, fontSize: 20),
                                               children: [
                                                 const TextSpan(text: 'Breed: ', style: TextStyle(fontWeight: FontWeight.bold)),
                                                 TextSpan(text: '${profiles[currentIndex].dogBreed ?? ""}\n'),
@@ -210,7 +149,7 @@ class MatchesPageState extends State<Matches> {
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text('Close'),
+                                              child: const Text('Close'),
                                             ),
                                           ],
                                         );

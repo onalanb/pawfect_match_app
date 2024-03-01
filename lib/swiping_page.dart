@@ -2,14 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pawfect_match_app/Data/profile.dart';
 import 'package:pawfect_match_app/report_profile.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pawfect_match_app/user_repo.dart';
 import 'heart_counter.dart';
 
 class SwipingMatchingPage extends StatefulWidget {
-  final String dbPath;
+  final UserRepository userRepository;
   final String userName;
 
-  const SwipingMatchingPage({required this.dbPath, required this.userName, Key? key}) : super(key: key);
+  const SwipingMatchingPage({required this.userRepository, required this.userName, Key? key,}) : super(key: key);
 
   @override
   createState() => _SwipingMatchingPageState();
@@ -17,111 +17,47 @@ class SwipingMatchingPage extends StatefulWidget {
 
 class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
   List<Profile> profiles = [];
-
-  Future<List<Profile>> readProfilesFromDatabase() async {
-    print('Reading profiles from database');
-    Database database = await openDatabase(widget.dbPath, version: 1);
-
-    final List<Map<String, dynamic>> maps = await database.rawQuery('SELECT * FROM Users WHERE username != ?', [widget.userName]);
-
-    return List.generate(maps.length, (i) {
-      return Profile(
-        username: maps[i]['username'],
-        dogName: maps[i]['dogName'],
-        dogBreed: maps[i]['dogBreed'],
-        dogAge: maps[i]['dogAge'],
-        gender: maps[i]['gender'],
-        about: maps[i]['about'],
-        image: maps[i]['image'],
-      );
-    });
-  }
-
-  Future setProfiles() async {
-    List<Profile> readProfiles;
-    if (profiles.isEmpty) {
-      readProfiles = await readProfilesFromDatabase();
-      await _updateMatchCount();
-      setState(() {
-        profiles = readProfiles;
-      });
-    }
-  }
-
   int currentIndex = 0;
+  bool animateCount = false;
+  int matchCount = 0;
+  late Future<void> _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture = setProfiles();
+  }
+
+  Future<void> setProfiles() async {
+    print("called setProfile function");
+    profiles = await widget.userRepository.getProfilesExcludingUser(widget.userName);
+    await _updateMatchCount();
+  }
 
   void _swipeLeft(String matchedUser) async {
-    Database database = await openDatabase(widget.dbPath, version: 1);
-    await database.transaction((txn) async {
-      await txn.delete('Matches', where: 'fromUser = ? AND toUser = ?', whereArgs: [widget.userName, matchedUser]);
-      await txn.insert('Matches', {
-        'fromUser': widget.userName,
-        'toUser': matchedUser,
-        'liked': false,
-      });
-    });
+    await widget.userRepository.swipeLeft(widget.userName, matchedUser);
     await _updateMatchCount();
-
-    setState(() {
-      currentIndex = (currentIndex + 1) % profiles.length;
-    });
+    setState(() => currentIndex = (currentIndex + 1) % profiles.length);
   }
 
   void _swipeRight(String matchedUser) async {
-    Database database = await openDatabase(widget.dbPath, version: 1);
-    await database.transaction((txn) async {
-      await txn.delete('Matches', where: 'fromUser = ? AND toUser = ?', whereArgs: [widget.userName, matchedUser]);
-      await txn.insert('Matches', {
-        'fromUser': widget.userName,
-        'toUser': matchedUser,
-        'liked': true,
-      });
-    });
+    await widget.userRepository.swipeRight(widget.userName, matchedUser);
     await _updateMatchCount();
+    setState(() => currentIndex = (currentIndex + 1) % profiles.length);
+  }
 
+  Future<void> _updateMatchCount() async {
+    int newCount = await widget.userRepository.getMatchCount(widget.userName);
     setState(() {
-      currentIndex = (currentIndex + 1) % profiles.length;
+      animateCount = (matchCount != newCount);
+      matchCount = newCount;
     });
-  }
-
-  bool animateCount = false;
-  int matchCount = 0;
-
-  Future _updateMatchCount() async {
-    Database database = await openDatabase(widget.dbPath, version: 1);
-    printMatches(database);
-    int? count = Sqflite.firstIntValue(
-      await database.rawQuery('''
-        SELECT COUNT(*)
-        FROM Matches m1
-        JOIN Matches m2
-        ON m1.toUser = m2.fromUser
-        WHERE m1.fromUser = ? AND m2.toUser = ? AND m1.liked = true AND m2.liked = true
-        ''',
-        [widget.userName, widget.userName]));
-
-    animateCount = (matchCount != count!);
-    matchCount = count;
-  }
-
-  Future<void> printMatches(Database database) async {
-    List<Map<String, dynamic>> matches = await database.query('Matches');
-
-    print('------------');
-    for (Map<String, dynamic> match in matches) {
-      print('Match ID: ${match['id']}');
-      print('From User: ${match['fromUser']}');
-      print('To User: ${match['toUser']}');
-      print('Liked: ${match['liked']}');
-
-      print('---');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: setProfiles(),
+        future:  _profileFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -195,7 +131,7 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                                         title: const Text('Information'),
                                         content: RichText(
                                           text: TextSpan(
-                                            style: const TextStyle(color: Colors.black, fontSize: 20), // Set the default text color and font size
+                                            style: const TextStyle(color: Colors.black, fontSize: 20),
                                             children: [
                                               const TextSpan(text: 'Breed: ', style: TextStyle(fontWeight: FontWeight.bold)),
                                               TextSpan(text: '${profiles[currentIndex].dogBreed ?? ""}\n'),
@@ -251,8 +187,10 @@ class _SwipingMatchingPageState extends State<SwipingMatchingPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [ HeartCounter(count: matchCount, animate: animateCount,
-                          dbPath: widget.dbPath, userName: widget.userName) ],
+                      children: [
+                        HeartCounter(count: matchCount, animate: animateCount,
+                            userName: widget.userName, userRepository: widget.userRepository)
+                      ],
                     ),
                   ],
                 ),
