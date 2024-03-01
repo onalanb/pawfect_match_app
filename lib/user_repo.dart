@@ -80,6 +80,15 @@ class SQLiteUserRepository implements UserRepository {
       WHERE m1.fromUser = ? AND m2.toUser = ? AND m1.liked = 1 AND m2.liked = 1
     ''', [userName, userName]);
 
+    print('--------- Matched Profiles for $userName ---------');
+    // Print the contents of each row
+    for (Map<String, dynamic> matchedProfile in matchedProfilesMaps) {
+      for (String key in matchedProfile.keys) {
+        print('$key : ${matchedProfile[key]}');
+      }
+      print('---');
+    }
+
     return List.generate(matchedProfilesMaps.length, (i) {
       return Profile.fromMap(matchedProfilesMaps[i]);
     });
@@ -87,13 +96,49 @@ class SQLiteUserRepository implements UserRepository {
 
   @override
   Future<int> getMatchCount(String userName) async {
+    print(userName);
+    await printMatches();
+    await printMatchesForUser(userName);
     var result = await db.rawQuery('''
       SELECT COUNT(*)
       FROM Matches m1
       JOIN Matches m2 ON m1.toUser = m2.fromUser AND m1.fromUser = m2.toUser
-      WHERE m1.liked = 1 AND m2.liked = 1 AND (m1.fromUser = ? OR m1.toUser = ?)
-    ''', [userName, userName]);
+      WHERE m1.liked = 1 AND m2.liked = 1 AND m1.fromUser = ?
+    ''', [userName]);
     return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<void> printMatchesForUser(String userName) async {
+    // Fetch all rows from the Matches table
+    List<Map<String, dynamic>> matches = await db.rawQuery('''
+      SELECT *
+      FROM Matches m1
+      JOIN Matches m2 ON m1.toUser = m2.fromUser AND m1.fromUser = m2.toUser
+      WHERE m1.liked = 1 AND m2.liked = 1 AND m1.fromUser = ?
+    ''', [userName]);
+    print('--------- Matches for $userName ---------');
+    // Print the contents of each row
+    for (Map<String, dynamic> match in matches) {
+      for (String key in match.keys) {
+        print('$key : ${match[key]}');
+      }
+      print('---');
+    }
+  }
+
+  Future<void> printMatches() async {
+    // Fetch all rows from the Matches table
+    List<Map<String, dynamic>> matches = await db.query('Matches');
+    print('--------- Entire Matches table ---------');
+    // Print the contents of each row
+    for (Map<String, dynamic> match in matches) {
+      print('Match ID: ${match['id']}');
+      print('From User: ${match['fromUser']}');
+      print('To User: ${match['toUser']}');
+      print('Liked: ${match['liked']}');
+      // Add more fields as needed
+      print('---');
+    }
   }
 }
 
