@@ -1,37 +1,30 @@
-// Baran Onalan , Sai Varun , James Robinson
-// February 29th, 2024
-// CPSC 5250 Mobile Development Group Project
-
 import 'package:flutter/material.dart';
+import 'package:pawfect_match_app/Data/database_setup.dart';
 import 'package:pawfect_match_app/login.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
-import 'Data/database_setup.dart';
+import 'package:pawfect_match_app/user_repo.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final appDir = await getApplicationDocumentsDirectory();
-  var appDirPath = appDir.path;
-  String dbPath = join(appDirPath, 'PawfectMatch.db');
   DatabaseHelper databaseHelper = DatabaseHelper.instance;
-  await databaseHelper.database;
+  Database db = await databaseHelper.database;
   await databaseHelper.insertMockDataIfNeeded();
-  runApp(PawfectMatchApp(dbPath: dbPath));
+  SQLiteUserRepository userRepository = SQLiteUserRepository(db);
+
+  runApp(PawfectMatchApp(userRepository: userRepository));
 }
 
 class PawfectMatchApp extends StatelessWidget {
-  final String dbPath;
+  final UserRepository userRepository;
 
-  const PawfectMatchApp({required this.dbPath, Key? key}) : super(key: key);
+  const PawfectMatchApp({Key? key, required this.userRepository}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Pawfect Match App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Login(dbPath: dbPath),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: Login(userRepository: userRepository), // Passing userRepo for Logging in
     );
   }
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 void reportProfile(BuildContext context) async {
-  final Map<String, dynamic>? result = await showEditDialog(context);
-  // print("Result: $result");
+  await showEditDialog(context);
 }
 
 Future<Map<String, dynamic>?> showEditDialog(BuildContext context) async {

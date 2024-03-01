@@ -2,16 +2,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pawfect_match_app/user_repo.dart';
 import 'package:path/path.dart';
+import 'Data/profile.dart';
 
 class ProfileCreationPage extends StatefulWidget {
-  final String dbPath;
+  final UserRepository userRepository;
 
-  const ProfileCreationPage({required this.dbPath, Key? key}) : super(key: key);
+  const ProfileCreationPage({required this.userRepository, Key? key}) : super(key: key);
 
   @override
-  _ProfileCreationPageState createState() => _ProfileCreationPageState();
+  createState() => _ProfileCreationPageState();
 }
 
 class _ProfileCreationPageState extends State<ProfileCreationPage> {
@@ -38,8 +39,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
 
   Future<String> saveImageToFileSystem(String originalImagePath, String username) async {
     final directory = await getApplicationDocumentsDirectory();
-    String fileName = basename(originalImagePath);
-    final File newImage = File(join(directory.path, fileName));
+    final fileName = basename(originalImagePath);
+    final newImage = File(join(directory.path, fileName));
 
     await File(originalImagePath).copy(newImage.path);
 
@@ -52,18 +53,19 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
       savedImagePath = await saveImageToFileSystem(imagePath, usernameController.text);
     }
 
-    final Database database = await openDatabase(widget.dbPath, version: 1);
-    await database.insert('Users', {
-      'username': usernameController.text,
-      'password': passwordController.text,
-      'dogName': dogNameController.text,
-      'dogBreed': breedController.text,
-      'dogAge': int.tryParse(ageController.text) ?? 0,
-      'gender': genderValue,
-      'about': aboutController.text,
-      'image': savedImagePath,
-      'phoneNumber': phoneNumberController.text,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    final profile = Profile(
+      username: usernameController.text,
+      password: passwordController.text,
+      dogName: dogNameController.text,
+      dogBreed: breedController.text,
+      dogAge: int.tryParse(ageController.text) ?? 0,
+      gender: genderValue,
+      about: aboutController.text,
+      image: savedImagePath,
+      phoneNumber: phoneNumberController.text,
+    );
+
+    await widget.userRepository.insertProfile(profile);
   }
 
   @override
@@ -103,6 +105,8 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                   },
                   decoration: const InputDecoration(hintText: "Create password"),
                 ),
+                const SizedBox(height: 20),
+                const Center(child: Text("Dog's Information", style: TextStyle(fontSize: 18))),
                 TextFormField(
                   controller: dogNameController,
                   validator: (value) {
@@ -111,49 +115,58 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                     }
                     return null;
                   },
-                  decoration: const InputDecoration(hintText: "Enter your Pet's name"),
+                  decoration: const InputDecoration(hintText: "Enter your Dog's name"),
                 ),
                 TextFormField(
                   controller: breedController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Please enter Dog breed";
+                      return "Please enter your Dog breed";
                     }
                     return null;
                   },
                   decoration: const InputDecoration(hintText: "Enter your Dog breed"),
                 ),
-                TextFormField(
-                  controller: ageController,
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please enter Dog age";
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(hintText: "Dog's Age"),
-                ),
-                DropdownButtonFormField<String>(
-                  value: genderValue,
-                  hint: const Text("Select Gender"),
-                  items: <String>['Male', 'Female'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      genderValue = newValue;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please select Dog gender";
-                    }
-                    return null;
-                  },
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: ageController,
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter your Dog age";
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(hintText: "Dog's Age"),
+                      ),
+                    ),
+                    const SizedBox(width: 34),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: genderValue,
+                        hint: const Text("Select Gender"),
+                        items: <String>['Male', 'Female'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            genderValue = newValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please select your Dog' gender";
+                          }
+                          return null;
+                        },
+                      ),
+                    )
+                  ]
                 ),
                 TextFormField(
                   controller: aboutController,
@@ -172,28 +185,35 @@ class _ProfileCreationPageState extends State<ProfileCreationPage> {
                   keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Please enter phone number";
+                      return "Please enter your phone number";
                     }
                     return null;
                   },
                   decoration: const InputDecoration(hintText: "Phone Number"),
                 ),
-                ElevatedButton(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  child: const Text('Select Image'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  child: const Text('Take Photo with Camera'),
-                ),
+               const SizedBox(height: 20),
+               Row(
+                 children: [
+                   ElevatedButton(
+                     onPressed: () => _pickImage(ImageSource.gallery),
+                     child: const Text('Select Image')
+                   ),
+                   const SizedBox(width: 20),
+                   ElevatedButton(
+                    onPressed: () => _pickImage(ImageSource.camera),
+                    child: const Text('Take Photo with Camera'),
+                  )
+                 ]
+               ),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       await saveProfileToDatabase();
-                      Navigator.of(context).pop(); // Navigate back after saving
+                      Navigator.of(context).pop(); // Navigating back after saving
                     }
                   },
-                  child: const Text('Save Profile'),
+                  child: const Center( child: Text('Save Profile')),
                 ),
               ],
             ),
