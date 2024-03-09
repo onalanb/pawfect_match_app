@@ -38,7 +38,6 @@ void main() async {
       testWidgets("Testing swiping features", (WidgetTester tester) async {
         await tester.pumpWidget(MaterialApp(
             home: Scaffold(
-                //appBar: AppBar(title: const Text('Swiping Test')),
                 body: SwipingMatchingPage(
                     userRepository: userRepository, userName: 'varun')
             )
@@ -54,10 +53,8 @@ void main() async {
         final dismissibleFinder = find.byType(Dismissible);
         expect(dismissibleFinder, findsOneWidget);
 
-        // Retrieve the Dismissible widget instance
         final Dismissible dismissibleWidget = tester.widget(dismissibleFinder);
 
-        // Access the child widget of the Dismissible widget
         Widget? childWidget = dismissibleWidget.child;
         childWidget = (childWidget as Card).child;
         childWidget = (childWidget as Stack).children[0];
@@ -69,14 +66,11 @@ void main() async {
         final rowFinder = find.byType(Row);
         expect(rowFinder, findsNWidgets(2));
 
-        // Find the ElevatedButtons inside row1
         final elevatedButtonFinder = find.descendant(
           of: find.byWidgetPredicate((widget) => widget is Row ),
           matching: find.byType(ElevatedButton),
         );
-
         expect(elevatedButtonFinder, findsNWidgets(4));
       });
-
     });
   }

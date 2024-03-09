@@ -73,7 +73,6 @@ void main() {
         home: ProfileCreationPage(userRepository: mockUserRepository),
       ));
 
-      // Check that no error messages are displayed initially
       expect(find.text('Please enter a username'), findsNothing);
       expect(find.text('Please create a password'), findsNothing);
       expect(find.text('Please enter Dog name'), findsNothing);

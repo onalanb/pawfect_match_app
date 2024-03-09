@@ -37,15 +37,12 @@ void main() async {
     });
 
     testWidgets('App should load Login screen', (WidgetTester tester) async {
-      // Build the app and trigger frame rendering
       await tester.pumpWidget(PawfectMatchApp(userRepository: userRepository));
 
-      // Verify that the Login screen is displayed
       expect(find.byType(Login), findsOneWidget);
     });
 
     testWidgets('App title should be "Pawfect Match App"', (WidgetTester tester) async {
-      // Build the app and trigger frame rendering
       await tester.pumpWidget(PawfectMatchApp(userRepository: userRepository));
 
       final MaterialApp app = tester.widget(find.byType(MaterialApp));
@@ -53,13 +50,10 @@ void main() async {
     });
 
     testWidgets('App theme should use primary color of blue', (WidgetTester tester) async {
-      // Build the app and trigger frame rendering
       await tester.pumpWidget(PawfectMatchApp(userRepository: userRepository));
 
-      // Verify that the primary color is blue
       final MaterialApp app = tester.widget(find.byType(MaterialApp));
       expect(app.theme!.primaryColor, Color(0xff6750a4));
     });
-
   });
 }
