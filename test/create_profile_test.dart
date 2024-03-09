@@ -14,6 +14,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: ProfileCreationPage(userRepository: mockUserRepository),
       ));
+      //await tester.pumpAndSettle();
 
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.byType(AppBar), findsOneWidget);
@@ -21,6 +22,18 @@ void main() {
 
       expect(find.byType(TextFormField), findsNWidgets(7));
       expect(find.byType(ElevatedButton), findsNWidgets(3));
+
+      expect(find.byKey(ProfileCreationPageState.formKey), findsOneWidget);
+      final Form formWidget = tester.widget(find.byKey(ProfileCreationPageState.formKey));
+      final Column column = formWidget.child as Column;
+      expect(find.text('SignUp'), findsOneWidget);
+      expect((column.children[1] as TextFormField).controller!.text, ''); // Create username
+      expect((column.children[2] as TextFormField).controller!.text, ''); // Create password
+      expect(find.text("Dog's Information"), findsOneWidget);
+      expect((column.children[5] as TextFormField).controller!.text, ''); // Dog's name
+      expect((column.children[6] as TextFormField).controller!.text, ''); // Dog's breed
+      expect((column.children[8] as TextFormField).controller!.text, ''); // About
+      expect((column.children[9] as TextFormField).controller!.text, ''); // Phone number
 
       await tester.enterText(find.byType(TextFormField).at(0), "varuntej07"); // username
       await tester.enterText(find.byType(TextFormField).at(1), "weakpassword"); // password
@@ -37,14 +50,10 @@ void main() {
       await tester.tap(genderDropdownItem);
       await tester.pumpAndSettle();
 
-      expect(find.text("varuntej07"), findsOneWidget);
-      expect(find.text("weakpassword"), findsOneWidget);
-      expect(find.text("Snoopy"), findsOneWidget);
-      expect(find.text("Rottweiler"), findsOneWidget);
-      expect(find.text("2"), findsOneWidget);
-      expect(find.text("Pissing off people"), findsOneWidget);
-      expect(find.text("911"), findsOneWidget);
-      expect(find.text('Male'), findsWidgets);
+      tester.tap(find.byType(ElevatedButton).at(2));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Welcome to Pawfect"), findsOneWidget);
     });
 
     testWidgets("Testing form validators show error messages when fields are empty", (WidgetTester tester) async {
