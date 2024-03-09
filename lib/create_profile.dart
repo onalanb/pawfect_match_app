@@ -12,11 +12,11 @@ class ProfileCreationPage extends StatefulWidget {
   const ProfileCreationPage({required this.userRepository, Key? key}) : super(key: key);
 
   @override
-  createState() => ProfileCreationPageState();
+  createState() => _ProfileCreationPageState();
 }
 
-class ProfileCreationPageState extends State<ProfileCreationPage> {
-  static final formKey = GlobalKey<FormState>();
+class _ProfileCreationPageState extends State<ProfileCreationPage> {
+  final _formKey = GlobalKey<FormState>();
 
   final usernameController = TextEditingController();
   final dogNameController = TextEditingController();
@@ -79,7 +79,7 @@ class ProfileCreationPageState extends State<ProfileCreationPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: Form(
-            key: formKey,
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -208,7 +208,7 @@ class ProfileCreationPageState extends State<ProfileCreationPage> {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () async {
-                    if (formKey.currentState!.validate()) {
+                    if (_formKey.currentState!.validate()) {
                       await saveProfileToDatabase();
                       Navigator.of(context).pop(); // Navigating back after saving
                     }
